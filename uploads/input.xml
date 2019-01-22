@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+
+   <SOAP-ENV:Body>
+
+      <return>
+
+         <EncounterId>246443</EncounterId>
+
+         <PatientId>105332</PatientId>
+
+         <ProviderId>13611</ProviderId>
+
+         <ControlNo>1053552</ControlNo>
+
+         <patient>Heard, Lydell</patient>
+
+         <DOB>06/20/1964</DOB>
+
+         <ApptFacilityId>4</ApptFacilityId>
+
+         <sex>Male</sex>
+
+         <age>53 Y</age>
+
+         <phone>510-575-7429</phone>
+
+         <address>3935 Monte rbo Ave Unit 1, Stockton, CA, US 95204</address>
+
+         <date>04/01/2015</date>
+
+         <time>09:29 AM</time>
+
+         <doctor>Lingo, Mitchel</doctor>
+
+         <user>Gomez, Brandi</user>
+
+         <assignedTo>Ko, Samuel</assignedTo>
+
+         <enctype>Telephone Encounter</enctype>
+
+         <caller>fax</caller>
+
+         <reason>med refill</reason>
+
+         <message>Dr. Ko, this patient reestablished with Dr. Lin, but was your patient prior to, since he is on vacation would you please authorize. Thank you</message>
+
+         <actiontaken>Gomez,Brandi  4/1/2015 9:32:18 AM &gt;</actiontaken>
+
+         <notes />
+
+         <ticketId>14077</ticketId>
+
+         <subItems>
+
+            <item>
+
+               <itemName>Refills</itemName>
+
+               <itemValue>Start Metoprolol Succinate ER Tablet Extended Release 24 Hour, 100 MG, Orally, 30, 1 tablet, Once a day, 30 day(s), Refills=1</itemValue>
+
+            </item>
+
+         </subItems>
+
+         <VirtualFlag>no</VirtualFlag>
+
+         <eMsgs />
+
+      </return>
+
+   </SOAP-ENV:Body>
+
+</SOAP-ENV:Envelope>

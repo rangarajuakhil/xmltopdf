@@ -40,12 +40,12 @@ public class XmlToPdfController {
                     .path("/download/")
                     .path(fileName)
                     .toUriString();
-            File pdf = new File(fileName);
-            InputStream inputStream = new FileInputStream(pdf);
-            MultipartFile pdfFile = new MockMultipartFile(fileName,pdf.getName(),"application/pdf", IOUtils.toByteArray(inputStream));
+//            File pdf = new File(fileName);
+//            InputStream inputStream = new FileInputStream(pdf);
+//            MultipartFile pdfFile = new MockMultipartFile(fileName,pdf.getName(),"application/pdf", IOUtils.toByteArray(inputStream));
             return new DownloadFileResponse(fileName, fileDownloadUri,
-                    pdfFile.getContentType(), String.valueOf(pdfFile.getSize()/1000).concat(" Kb"));
-        } catch (IOException e) {
+                    "application.pdf",String.valueOf(file.getSize()).concat(" Kb"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

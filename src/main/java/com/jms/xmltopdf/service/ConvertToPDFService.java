@@ -80,7 +80,7 @@ public class ConvertToPDFService {
                 return "Invalid Path Sequence in the File: " + fileName;
             }
 
-            if(!checkFileExtension(fileName).equalsIgnoreCase("application/xml")){
+            if(!checkFileExtension(fileName).equalsIgnoreCase("xml")){
                 return "Invalid XML file:  " + fileName;
             }
 

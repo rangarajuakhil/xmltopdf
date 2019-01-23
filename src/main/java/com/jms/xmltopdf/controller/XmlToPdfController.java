@@ -1,6 +1,7 @@
 package com.jms.xmltopdf.controller;
 
 import com.jms.xmltopdf.payload.DownloadFileResponse;
+import com.jms.xmltopdf.payload.PurgeAllResponse;
 import com.jms.xmltopdf.service.ConvertToPDFService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -82,5 +83,11 @@ public class XmlToPdfController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @DeleteMapping("/purge")
+    public PurgeAllResponse purgeAll(){
+        int count = convertToPDFService.purgeAllFiles();
+        return new PurgeAllResponse("Purge", "Successfully Deleted "+count+" Files from uploads and downloads put together.");
     }
 }

@@ -12,6 +12,7 @@ import com.jms.xmltopdf.filters.NamespaceFilter;
 import com.jms.xmltopdf.jaxb.Envelope;
 import com.jms.xmltopdf.jaxb.ObjectFactory;
 import com.jms.xmltopdf.property.FileStorageProperties;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.InputSource;
@@ -41,8 +43,8 @@ import javax.xml.transform.sax.SAXSource;
 @Service
 public class ConvertToPDFService {
 
-    private final Path uploadLocation;
-    private final Path downloadLocation;
+    private Path uploadLocation;
+    private Path downloadLocation;
     private Envelope envelope;
 
     private Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18,
@@ -69,25 +71,41 @@ public class ConvertToPDFService {
 
     }
 
+    public Path getUploadLocation() {
+        return uploadLocation;
+    }
+
+    public void setUploadLocation(Path uploadLocation) {
+        this.uploadLocation = uploadLocation;
+    }
+
+    public Path getDownloadLocation() {
+        return downloadLocation;
+    }
+
+    public void setDownloadLocation(Path downloadLocation) {
+        this.downloadLocation = downloadLocation;
+    }
+
     public String getPDF(MultipartFile file) {
         // Normalize file name
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileNameWithOutExt = FilenameUtils.removeExtension(fileName);
-        String pdfFileName = fileNameWithOutExt+"."+"pdf";
+        String pdfFileName = fileNameWithOutExt + "." + "pdf";
         try {
             // Check if the file's name contains invalid characters
-            if(fileName.contains("..")) {
+            if (fileName.contains("..")) {
                 return "Invalid Path Sequence in the File: " + fileName;
             }
 
-            if(!checkFileExtension(fileName).equalsIgnoreCase("xml")){
+            if (!checkFileExtension(fileName).equalsIgnoreCase("xml")) {
                 return "Invalid XML file:  " + fileName;
             }
 
             // Copy file to the upload location (Replacing existing file with the same name)
             Path uploadLocation = this.uploadLocation.resolve(fileName);
             Files.copy(file.getInputStream(), uploadLocation, StandardCopyOption.REPLACE_EXISTING);
-            String pdfFile = convertXmlToPDF(file,pdfFileName);
+            String pdfFile = convertXmlToPDF(file, pdfFileName);
 
             return pdfFile;
         } catch (IOException ex) {
@@ -95,7 +113,7 @@ public class ConvertToPDFService {
         }
     }
 
-    private String convertXmlToPDF(MultipartFile file, String pdfFileName){
+    private String convertXmlToPDF(MultipartFile file, String pdfFileName) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -119,10 +137,10 @@ public class ConvertToPDFService {
             document.close();
 
             File pdf = new File(pdfFileName);
-            InputStream inputStream = new FileInputStream(pdf);
             // Copy file to the download location (Replacing existing file with the same name)
             Path downloadLocation = this.downloadLocation.resolve(pdfFileName);
-            Files.copy(inputStream, downloadLocation, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(new FileInputStream(pdf), downloadLocation, StandardCopyOption.REPLACE_EXISTING);
+            Files.delete(pdf.toPath());
 
 
         } catch (JAXBException | SAXException | IOException e) {
@@ -150,7 +168,7 @@ public class ConvertToPDFService {
 
             PdfPTable basicTab = new PdfPTable(1);
             PdfPCell ticketCell =
-                    new PdfPCell(new Phrase("Ticket: " + envelope.getBody().getReturn().getTicketId(),bluefont));
+                    new PdfPCell(new Phrase("Ticket: " + envelope.getBody().getReturn().getTicketId(), bluefont));
             ticketCell.setBorderWidth(0);
             ticketCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             basicTab.addCell(ticketCell);
@@ -214,17 +232,17 @@ public class ConvertToPDFService {
         PdfPCell cell2 = new PdfPCell(new Phrase("ITEMS"));
 
         PdfPTable nestedTable = new PdfPTable(2);
-        PdfPCell n1 = new PdfPCell(new Phrase("ITEM NAME",smallBold));
+        PdfPCell n1 = new PdfPCell(new Phrase("ITEM NAME", smallBold));
         n1.setBackgroundColor(BaseColor.LIGHT_GRAY);
         n1.setHorizontalAlignment(Element.ALIGN_CENTER);
         nestedTable.addCell(n1);
 
-        PdfPCell n2 = new PdfPCell(new Phrase("ITEM VALUE",smallBold));
+        PdfPCell n2 = new PdfPCell(new Phrase("ITEM VALUE", smallBold));
         n2.setBackgroundColor(BaseColor.LIGHT_GRAY);
         n2.setHorizontalAlignment(Element.ALIGN_CENTER);
         nestedTable.addCell(n2);
 
-        for(Envelope.Body.Return.SubItems.Item item : items){
+        for (Envelope.Body.Return.SubItems.Item item : items) {
             nestedTable.addCell(new PdfPCell(new Phrase(item.getItemName())));
             nestedTable.addCell(new PdfPCell(new Phrase(item.getItemValue())));
         }
@@ -256,7 +274,7 @@ public class ConvertToPDFService {
         table.addCell(cell2);
     }
 
-    private void addLongCell(PdfPTable table, String key, String val){
+    private void addLongCell(PdfPTable table, String key, String val) {
         PdfPCell cell1 = new PdfPCell(new Phrase(key, smallBold));
         cell1.setFixedHeight(50f);
         cell1.setBackgroundColor(BaseColor.LIGHT_GRAY);
@@ -272,8 +290,7 @@ public class ConvertToPDFService {
         }
     }
 
-    public String checkFileExtension(String fileName)
-    {
+    public String checkFileExtension(String fileName) {
         return FilenameUtils.getExtension(fileName);
     }
 
@@ -282,7 +299,7 @@ public class ConvertToPDFService {
         try {
             Path filePath = this.downloadLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-            if(resource.exists()) {
+            if (resource.exists()) {
                 return resource;
             } else {
                 throw new MyFileNotFoundException("File not found " + fileName);
@@ -291,4 +308,30 @@ public class ConvertToPDFService {
             throw new MyFileNotFoundException("File not found " + fileName, ex);
         }
     }
+
+    public int purgeAllFiles() {
+        try {
+            int totalCount = countFilesInDirectory(getUploadLocation().toFile()) + countFilesInDirectory(getDownloadLocation().toFile());
+            FileUtils.deleteDirectory(getDownloadLocation().toFile());
+            FileUtils.deleteDirectory(getUploadLocation().toFile());
+            return totalCount;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countFilesInDirectory(File directory) {
+        int count = 0;
+        for (File file : directory.listFiles()) {
+            if (file.isFile()) {
+                count++;
+            }
+            if (file.isDirectory()) {
+                count += countFilesInDirectory(file);
+            }
+        }
+        return count;
+    }
+
 }
